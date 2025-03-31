@@ -2,7 +2,7 @@ Class {
 	#name : 'ShUnixMemoryMappedFile',
 	#superclass : 'Object',
 	#instVars : [
-		'fileReference',
+		'filePath',
 		'size',
 		'fd',
 		'address'
@@ -62,8 +62,8 @@ ShUnixMemoryMappedFile >> ffiLibraryName [
 ]
 
 { #category : 'accessing' }
-ShUnixMemoryMappedFile >> fileReference: aFileLocator [ 
-	fileReference := aFileLocator
+ShUnixMemoryMappedFile >> filePath: aString [ 
+	filePath := aString
 ]
 
 { #category : 'as yet unclassified' }
@@ -108,12 +108,8 @@ ShUnixMemoryMappedFile >> open: path flags: flags mode: mode [
 
 { #category : 'as yet unclassified' }
 ShUnixMemoryMappedFile >> openFile [
-	
-	| path flags |
-	path := fileReference.
-	flags := O_RDWR.
-	
-	fd := self open: path flags: flags mode: 0.
+		
+	fd := self open: filePath flags: O_RDWR mode: 0.
 	
 	fd < 0 ifTrue: [ self error ].
 ]

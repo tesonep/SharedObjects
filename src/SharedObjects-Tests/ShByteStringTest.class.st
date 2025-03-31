@@ -23,3 +23,13 @@ ShByteStringTest >> testStringGivesCorrectSize [
 	self assert: str size equals: 3.
 	self assertCollection: str hasSameElements: 'abc'
 ]
+
+{ #category : 'tests' }
+ShByteStringTest >> testStringGivesCorrectSizeWith8 [
+
+	| str |
+
+	str := self newString: '12345678'.
+	self assert: str size equals: 8.
+	self assertCollection: str hasSameElements: '12345678'
+]

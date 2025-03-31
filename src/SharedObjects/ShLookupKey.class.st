@@ -7,7 +7,7 @@ Class {
 	#traits : 'TShObject',
 	#classTraits : 'TShObject classTrait',
 	#instVars : [
-		'key'
+		'#key => ShSlot'
 	],
 	#category : 'SharedObjects-BaseClasses',
 	#package : 'SharedObjects',

@@ -77,6 +77,12 @@ ShSpaceState >> memorySize: anInteger [
 ]
 
 { #category : 'accessing' }
+ShSpaceState >> root: anObject [ 
+	
+	rootObject := anObject
+]
+
+{ #category : 'accessing' }
 ShSpaceState >> rootObject [
 	^ rootObject
 ]

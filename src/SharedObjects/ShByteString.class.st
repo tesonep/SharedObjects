@@ -20,7 +20,7 @@ ShByteString class >> from: aString in: aShObjectSpace [
 	| inst |
 	
 	inst := aShObjectSpace allocateInstanceOf: self withBytes: aString size.
-	aString withIndexDo: [ :char :index | inst at: index put: char ].
+	aString withIndexDo: [ :char :index | inst at: index put: ((char isOctetCharacter) ifTrue:[ char] ifFalse: [ Character space ]) ].
 	^ inst
 
 ]

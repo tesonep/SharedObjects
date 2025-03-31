@@ -11,7 +11,7 @@ Class {
 	#name : 'ShAssociation',
 	#superclass : 'ShLookupKey',
 	#instVars : [
-		'value'
+		'#value => ShSlot'
 	],
 	#category : 'SharedObjects-BaseClasses',
 	#package : 'SharedObjects',

@@ -72,6 +72,18 @@ ShArrayTest >> testStoringFloat [
 ]
 
 { #category : 'running' }
+ShArrayTest >> testStoringFloatThatIsLargeIntegerWhenEncoded [
+
+	| array |
+	
+	array := self newArray: 1.
+	array at: 1 put: 6.1.
+
+	self assert: array first equals: 6.1.
+	
+]
+
+{ #category : 'running' }
 ShArrayTest >> testStoringMaxSmallInteger [
 
 	| array |

@@ -1,0 +1,1 @@
+Package { #name : 'SharedObjects-Extensions' }

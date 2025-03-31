@@ -99,6 +99,15 @@ ShObjectSpace class >> openOnExistingMemory: aMemory withSize: aSize [
 		  yourself
 ]
 
+{ #category : 'class initialization' }
+ShObjectSpace class >> openOrCreateOnExistingMemory: aMemory withSize: aSize [
+	"Try to read the first word of the space. If it is 0, we assume we need to create it"
+
+	^ (aMemory uint64AtOffset: 0) isZero
+		  ifTrue: [ self createOnMemory: aMemory andSize: aSize ]
+		  ifFalse: [ self openOnExistingMemory: aMemory withSize: aSize ]
+]
+
 { #category : 'query' }
 ShObjectSpace >> allObjects [
 	
@@ -189,7 +198,7 @@ ShObjectSpace >> basicAllocateWords: words header: header [
 { #category : 'reading' }
 ShObjectSpace >> basicReadAtAddress: anAddress [
 
-	^ memory int64AtOffset: anAddress
+	^ memory uint64AtOffset: anAddress
 ]
 
 { #category : 'reading' }
@@ -201,7 +210,7 @@ ShObjectSpace >> basicReadByteAtAddress: anAddress [
 { #category : 'writing' }
 ShObjectSpace >> basicWriteAtAddress: anAddress put: aValue [
 
-	memory int64AtOffset: anAddress put: aValue
+	memory uint64AtOffset: anAddress put: aValue
 ]
 
 { #category : 'writing' }
@@ -259,9 +268,12 @@ ShObjectSpace >> decodeSmallFloat: value [
 { #category : 'utilities' }
 ShObjectSpace >> decodeSmallInteger: value [
 
-	^ value < 0
-		  ifTrue: [ ^ (value - self smallIntegerTag) abs >> self tagBitSize * -1 ]
-		  ifFalse: [ ^ value - self smallIntegerTag >> self tagBitSize ]
+	"tests top bit"
+	^ (value bitShift: -63) = 1
+		  ifTrue: [ "negative"
+			  ((value bitShift: self tagBitSize negated) bitAnd: 16r1FFFFFFFFFFFFFFF) - 16r1FFFFFFFFFFFFFFF - 1 ]
+		  ifFalse: [ "positive" 
+		  value bitShift: self tagBitSize negated ]
 ]
 
 { #category : 'utilities' }
@@ -295,7 +307,9 @@ ShObjectSpace >> encodeSmallFloat: aFloat [
 { #category : 'utilities' }
 ShObjectSpace >> encodeSmallInteger: anObject [
 
-	^ anObject << self tagBitSize + self smallIntegerTag
+	^ anObject << self tagBitSize + (anObject >= 0
+		   ifTrue: [ 1 ]
+		   ifFalse: [ 16r10000000000000001 ])
 ]
 
 { #category : 'utilities' }
@@ -337,7 +351,12 @@ ShObjectSpace >> fetchSizeOfHeader: anInteger [
 { #category : 'utilities' }
 ShObjectSpace >> fetchUsedSlotsInLastWordOfHeader: aHeader [ 
 	
-	^ (aHeader >> HEADER_USED_SLOTS_OFFSET) bitAnd: HEADER_USED_SLOTS_MASK 
+	| value |
+	
+	value := ((aHeader >> HEADER_USED_SLOTS_OFFSET) bitAnd: HEADER_USED_SLOTS_MASK).
+
+	^ value
+		isZero ifTrue: [ self wordSize ] ifFalse: [ value ] 
 ]
 
 { #category : 'finalization' }
@@ -357,8 +376,8 @@ ShObjectSpace >> headerFor: aClass type: aType slots: slots [
 	aType = TYPE_BYTES 
 		ifTrue: [ 
 			words := (slots / self wordSize) ceiling.
-			remainer := slots % self wordSize.
-			usedSlots := remainer = 0 ifTrue: [ self wordSize ] ifFalse: [ remainer ] ].
+			"If 0, it uses everything"
+			usedSlots := slots % self wordSize ].
 
 	words >= (2 ** HEADER_WORDS_BITS - 1) ifTrue: [ self halt ].
 
@@ -460,6 +479,12 @@ ShObjectSpace >> isSmallFloatValue: value [
 ShObjectSpace >> isSmallIntegerValue: value [
 
 	^ (value bitAnd: self smallIntegerTag) = self smallIntegerTag
+]
+
+{ #category : 'testing' }
+ShObjectSpace >> isValid [
+	
+	^ memory isNotNil and: [ memory isNull not ]
 ]
 
 { #category : 'accessing' }
@@ -614,6 +639,12 @@ ShObjectSpace >> smallIntegerTag [
 ShObjectSpace >> tagBitSize [
 
 	^ 3
+]
+
+{ #category : 'as yet unclassified' }
+ShObjectSpace >> usedSpace [
+	
+	^ state freeStart
 ]
 
 { #category : 'accessing' }
