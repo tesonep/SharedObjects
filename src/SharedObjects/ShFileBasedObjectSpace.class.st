@@ -82,7 +82,8 @@ ShFileBasedObjectSpace >> initializeForFileReference: aFileReference withInitial
 	
 	"Create empty file"
 	aFileReference binaryWriteStreamDo: [ :aStream |
-		1 to: initialSize by: 8 do: [ :i | aStream uint64: 0 ]]
+		aStream uint64: 0.
+		aStream truncate: initialSize]
 ]
 
 { #category : 'as yet unclassified' }
