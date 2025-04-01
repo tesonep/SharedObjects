@@ -19,6 +19,6 @@ BaselineOfSharedObjects >> baseline: spec [
 				package: 'SharedObjects-IO';
 				package: 'SharedObjects-Extensions' with: [ spec requires: 'NeoJSON' ];
 				package: 'SharedObjects-Tests' with: [ 
-					spec requires: #('SharedObjects' 'SharedObjects-IO' 'SharedObjects-Externsions') ]
+					spec requires: #('SharedObjects' 'SharedObjects-IO' 'SharedObjects-Extensions') ]
 	 ]
 ]
