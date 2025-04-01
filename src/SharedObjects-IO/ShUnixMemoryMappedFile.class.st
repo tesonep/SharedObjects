@@ -48,7 +48,7 @@ ShUnixMemoryMappedFile >> address [
 	^ address
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'public' }
 ShUnixMemoryMappedFile >> closeFile [
 	
 	LibC uniqueInstance close: fd. 
@@ -66,7 +66,7 @@ ShUnixMemoryMappedFile >> filePath: aString [
 	filePath := aString
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'public' }
 ShUnixMemoryMappedFile >> mapInMemory [
 
 	address := self
@@ -81,32 +81,32 @@ ShUnixMemoryMappedFile >> mapInMemory [
 		ifTrue: [ self error ].
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private - ffi' }
 ShUnixMemoryMappedFile >> mmap: address size: size prot: prot flags: flags fd: fd offset: offset [ 
 	
 	self ffiCall: #(void* mmap(void* address, size_t size, int prot, int flags, int fd, off_t offset))
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private - ffi' }
 ShUnixMemoryMappedFile >> msync: anAddress size: aSize flags: flags [ 
 	
 	self ffiCall: #(int msync(void* anAddress, size_t aSize, int flags))
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private - ffi' }
 ShUnixMemoryMappedFile >> munmap: anAddress size: aSize [ 
 
 		self ffiCall:#(int munmap(void* anAddress, size_t aSize))
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private - ffi' }
 ShUnixMemoryMappedFile >> open: path flags: flags mode: mode [ 
 	
 	^ self ffiCall: #(int open(char* path, int flags, mode_t mode))
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'public' }
 ShUnixMemoryMappedFile >> openFile [
 		
 	fd := self open: filePath flags: O_RDWR mode: 0.
@@ -131,7 +131,7 @@ ShUnixMemoryMappedFile >> sync [
 	^ self msync: address size: size flags: MS_SYNC.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'public' }
 ShUnixMemoryMappedFile >> unmap [
 
 	| r |

@@ -52,7 +52,7 @@ ShFileBasedObjectSpace >> close [
 { #category : 'as yet unclassified' }
 ShFileBasedObjectSpace >> ensureMappedFile [
 	
-	mappedFile ifNil: [ mappedFile := ShUnixMemoryMappedFile new ].
+	mappedFile ifNil: [ mappedFile := self newMappedFile ].
 	(mappedFile address isNotNil and: [ mappedFile address isNull not ]) ifTrue: [ ^ self ].
 	
 	mappedFile filePath: fileReference fullName.
@@ -83,6 +83,15 @@ ShFileBasedObjectSpace >> initializeForFileReference: aFileReference withInitial
 	"Create empty file"
 	aFileReference binaryWriteStreamDo: [ :aStream |
 		1 to: initialSize by: 8 do: [ :i | aStream uint64: 0 ]]
+]
+
+{ #category : 'as yet unclassified' }
+ShFileBasedObjectSpace >> newMappedFile [
+		
+	^ OSPlatform current isWindows 
+		ifTrue: [ ShWinMemoryMappedFile new ]
+		ifFalse: [ ShUnixMemoryMappedFile new ]
+	
 ]
 
 { #category : 'enumerating' }
