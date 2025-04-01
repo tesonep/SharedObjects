@@ -13,6 +13,10 @@ BaselineOfSharedObjects >> baseline: spec [
 		do: [ 
 
 			spec baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON/repository' ].
+			spec baseline: 'PharoWin32' with: [ 
+					spec
+						loads: 'core-tests'; 
+						repository: 'github://tesonep/pharo-com' ].
 
 			spec
 				package: 'SharedObjects';
