@@ -20,14 +20,27 @@ ShSlot >> installingIn: aClass [
 	offset := booleanSlots indexOf: self
 ]
 
+{ #category : 'accessing' }
+ShSlot >> offset [
+	
+	| shSlots |
+	
+	offset ifNotNil: [ ^ offset ].
+	
+	shSlots := owningClass allSlots select: [ :each | each isKindOf: self class ].
+	offset := shSlots indexOf: self.
+	
+	^ offset
+]
+
 { #category : 'meta-object-protocol' }
 ShSlot >> read: aShTestObject [ 
 	
-	^ aShTestObject reference readAt: offset
+	^ aShTestObject reference readAt: self offset
 ]
 
 { #category : 'meta-object-protocol' }
 ShSlot >> write: aValue to: anObject [ 
 	
-	anObject reference writeAt: offset value: aValue
+	anObject reference writeAt: self offset value: aValue
 ]
