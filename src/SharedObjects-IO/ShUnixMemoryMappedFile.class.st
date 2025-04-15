@@ -7,41 +7,13 @@ Class {
 		'fd',
 		'address'
 	],
-	#classVars : [
-		'MAP_FILE',
-		'MAP_SHARED',
-		'MS_SYNC',
-		'O_CREAT',
-		'O_RDWR',
-		'PROT_READ',
-		'PROT_WRITE',
-		'S_IRUSR',
-		'S_IWUSR',
-		'mode_t',
-		'off_t'
+	#pools : [
+		'ShUnixConstants',
+		'ShUnixTypes'
 	],
 	#category : 'SharedObjects-IO',
 	#package : 'SharedObjects-IO'
 }
-
-{ #category : 'class initialization' }
-ShUnixMemoryMappedFile class >> initialize [
-
-	O_CREAT := 16r00000200.
-	O_RDWR := 16r0002.
-	
-	S_IRUSR := 8r0400.
-	S_IWUSR := 8r0200.
-
-	mode_t := FFIInt16.
-	off_t := FFIInt64.
-	 
-	PROT_READ  := 1.
-	PROT_WRITE := 2.
-	MAP_FILE   := 0.
-	MAP_SHARED := 1.
-	MS_SYNC := 16r0010.
-]
 
 { #category : 'accessing' }
 ShUnixMemoryMappedFile >> address [
