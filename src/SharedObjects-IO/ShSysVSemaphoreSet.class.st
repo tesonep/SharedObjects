@@ -1,18 +1,9 @@
 Class {
 	#name : 'ShSysVSemaphoreSet',
-	#superclass : 'Object',
+	#superclass : 'ShAbstractSysVKeyed',
 	#instVars : [
-		'file',
-		'projectID',
-		'key',
 		'numberOfSemaphores',
-		'semaphoreSetId',
-		'errnoAddress',
-		'returnValue'
-	],
-	#pools : [
-		'ShUnixConstants',
-		'ShUnixTypes'
+		'semaphoreSetId'
 	],
 	#category : 'SharedObjects-IO',
 	#package : 'SharedObjects-IO'
@@ -22,6 +13,12 @@ Class {
 ShSysVSemaphoreSet class >> named: aFileReference [
 
 	^ self named: aFileReference projectId: $A codePoint
+]
+
+{ #category : 'instance creation' }
+ShSysVSemaphoreSet class >> named: aFileReference numberOfSemaphores: semaphores [
+
+	^ self named: aFileReference projectId: $A codePoint numberOfSemaphores: semaphores
 ]
 
 { #category : 'instance creation' }
@@ -39,6 +36,13 @@ ShSysVSemaphoreSet class >> named: aFileReference projectId: aProjectId numberOf
 		projectId: aProjectId;
 		numberOfSemaphores: numSems;
 		yourself
+]
+
+{ #category : 'instance creation' }
+ShSysVSemaphoreSet >> createAndOpen [
+	
+	semaphoreSetId := self semget: self key nsems: numberOfSemaphores semflg: IPC_CREAT | IPC_EXCL | S_IWUSR | S_IRUSR.
+	semaphoreSetId = 0 ifTrue: [ self error: 'Error in semget: ' , self errno printString ]
 ]
 
 { #category : 'deleting' }
@@ -69,36 +73,12 @@ ShSysVSemaphoreSet >> doWait: semaphoreIndex withDecrement: decrement try: try [
 	returnValue := self semop: semaphoreSetId semaphoreOperations: buf size: 1.
 	returnValue < 0 ifTrue: [ 
 		lastErrno := self errno.
-		(lastErrno = 35 and: [ try ]) ifTrue: [ ^ ShSemaphoreWillBlock signal ].
-		self error: 'Cannot wait:', lastErrno printString ].
+		(lastErrno = 35 and: [ try ]) ifTrue: [ ^ false ].
+		self error: 'Cannot wait:', lastErrno printString.
+		^ false ].
 	
-]
-
-{ #category : 'accessing' }
-ShSysVSemaphoreSet >> errno [
-
-	errnoAddress ifNil: [ errnoAddress := ExternalAddress loadSymbol: #errno ].
-		
-	^ errnoAddress isNull 
-		ifTrue: [ nil ]
-		ifFalse: [ errnoAddress platformLongAt: 1 ]
-]
-
-{ #category : 'library path' }
-ShSysVSemaphoreSet >> ffiLibraryName [ 
-
-	^ LibC
-]
-
-{ #category : 'accessing' }
-ShSysVSemaphoreSet >> file: aString [ 
-	file := aString
-]
-
-{ #category : 'accessing' }
-ShSysVSemaphoreSet >> ftok: path projectId: id [
+	^ true.
 	
-	^ self ffiCall: #(key_t ftok(char *path, int id))
 ]
 
 { #category : 'testing' }
@@ -107,20 +87,10 @@ ShSysVSemaphoreSet >> isValid [
 	^ semaphoreSetId isNotNil and: [ semaphoreSetId > 0 ]
 ]
 
-{ #category : 'accessing' }
-ShSysVSemaphoreSet >> key [
-
-	key ifNil: [ 
-		key := self ftok: file projectId: projectID.
-		key = -1 ifTrue: [ 
-			key := nil. 
-			self error: 'Errno: ' , self errno printString ] ].
-	
-	^ key
-]
-
 { #category : 'as yet unclassified' }
 ShSysVSemaphoreSet >> lastPidOf: semaphoreIndex [
+
+	| returnValue |
 
 	semaphoreIndex <= numberOfSemaphores ifFalse: [ ^ self error: 'Invalid Semaphore Index' ].
 	
@@ -140,14 +110,14 @@ ShSysVSemaphoreSet >> numberOfSemaphores: anInteger [
 { #category : 'instance creation' }
 ShSysVSemaphoreSet >> open [
 	
-	semaphoreSetId := self semget: self key nsems: numberOfSemaphores semflg: IPC_CREAT | S_IWUSR | S_IRUSR.
+	semaphoreSetId := self semget: self key nsems: numberOfSemaphores semflg: 0.
 	semaphoreSetId = 0 ifTrue: [ self error: 'Error in semget: ' , self errno printString ]
 ]
 
-{ #category : 'as yet unclassified' }
-ShSysVSemaphoreSet >> projectId: anInteger [ 
+{ #category : 'accessing' }
+ShSysVSemaphoreSet >> semaphoreAt: index [ 
 	
-	projectID := anInteger 
+	^ ShSysVSemaphore for: self index: index
 ]
 
 { #category : 'as yet unclassified' }

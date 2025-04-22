@@ -19,7 +19,7 @@ ShSysVSemaphoreSetTest >> testNamedSemaphoreSet [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	
 	self assert: semaphoreSet isValid.
 ]
@@ -29,7 +29,7 @@ ShSysVSemaphoreSetTest >> testNewSemaphoreDoesNotHavePID [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 		
 	self assert: (semaphoreSet lastPidOf: 1) equals: 0
 ]
@@ -39,7 +39,7 @@ ShSysVSemaphoreSetTest >> testNewSemaphoreHasCorrectValue [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	
 	self assert: (semaphoreSet valueOf: 1) equals: 0.
 ]
@@ -49,7 +49,7 @@ ShSysVSemaphoreSetTest >> testSettingTheValueOfASemaphoreAffectsTheValue [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet set: 23 asValueOf: 1.
 	
 	self assert: (semaphoreSet valueOf: 1) equals: 23.
@@ -60,7 +60,7 @@ ShSysVSemaphoreSetTest >> testSignallingChangesLastPID [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet signal: 1.
 	
 	self assert: (semaphoreSet lastPidOf: 1) equals: LibC uniqueInstance getpid
@@ -71,7 +71,7 @@ ShSysVSemaphoreSetTest >> testSignallingWillIncreaseTheValue [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet signal: 1.
 	
 	self assert: (semaphoreSet valueOf: 1) equals: 1.
@@ -82,7 +82,7 @@ ShSysVSemaphoreSetTest >> testTryWaitWithAvailableSignalsWork [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet set: 23 asValueOf: 1.
 	
 	semaphoreSet tryWait: 1 withDecrement: 23.
@@ -95,9 +95,9 @@ ShSysVSemaphoreSetTest >> testTryWaitWithoutSignalsDoesNotHungAndGeneratesError 
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	
-	self should: [semaphoreSet tryWait: 1 withDecrement: 23] raise: ShSemaphoreWillBlock.
+	self deny: (semaphoreSet tryWait: 1 withDecrement: 23)
 	
 
 ]
@@ -107,7 +107,7 @@ ShSysVSemaphoreSetTest >> testWaitingAffectsValue [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet set: 23 asValueOf: 1.
 	
 	semaphoreSet wait: 1.
@@ -120,7 +120,7 @@ ShSysVSemaphoreSetTest >> testWaitingWithExactValueDoesNotBlock [
 
 	semaphoreSet := ShSysVSemaphoreSet named: FileLocator imageDirectory.
 	
-	semaphoreSet open.
+	semaphoreSet createAndOpen.
 	semaphoreSet set: 23 asValueOf: 1.
 	
 	semaphoreSet wait: 1 withDecrement: 23.
