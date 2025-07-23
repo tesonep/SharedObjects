@@ -1,9 +1,9 @@
 To Install
 
-```
+```smalltalk
 Metacello new
 	baseline: 'SharedObjects';
-	repository: 'github://tesonep/SharedObjects';
+	repository: 'github://tesonep/SharedObjects:main';
 	load
 ```
 
